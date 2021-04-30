@@ -1,4 +1,4 @@
-package com.example.mvvm_retrofit_imagesearchapp
+package com.example.mvvm_retrofit_imagesearchapp.data
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
@@ -10,7 +10,7 @@ data class UnsplashPhoto(
     val urls: UnsplashPhotoUrls,
     val users: UnsplashUser
 ) : Parcelable {
-    
+
     @Parcelize
     data class UnsplashPhotoUrls(
         val raw: String,
