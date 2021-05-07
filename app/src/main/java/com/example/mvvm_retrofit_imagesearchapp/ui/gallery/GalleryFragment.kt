@@ -1,7 +1,11 @@
 package com.example.mvvm_retrofit_imagesearchapp.ui.gallery
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.mvvm_retrofit_imagesearchapp.R
@@ -37,6 +41,35 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         viewModel.photos.observe(viewLifecycleOwner) {
             adapter.submitData(viewLifecycleOwner.lifecycle, it)
         }
+
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+
+        inflater.inflate(R.menu.menu_gallery, menu)
+
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView as SearchView
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                if(query != null && query.length > 3){
+                    binding.recyclerView.scrollToPosition(0)
+                    viewModel.searchPhotos(query)
+                    searchView.clearFocus()
+                }
+                else
+                    Toast.makeText(activity,"Type at least 3 characters to search",Toast.LENGTH_SHORT).show()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return true
+            }
+
+        })
     }
 
     override fun onDestroy() {
