@@ -1,4 +1,4 @@
-package com.example.mvvm_retrofit_imagesearchapp.adapter
+package com.example.mvvm_retrofit_imagesearchapp.adapter.gallery
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
