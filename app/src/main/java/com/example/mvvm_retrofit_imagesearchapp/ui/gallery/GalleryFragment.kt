@@ -6,8 +6,10 @@ import android.view.MenuInflater
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.paging.LoadState
 import com.example.mvvm_retrofit_imagesearchapp.R
 import com.example.mvvm_retrofit_imagesearchapp.adapter.gallery.UnsplashPhotoAdapter
 import com.example.mvvm_retrofit_imagesearchapp.adapter.gallery.UnsplashPhotoLoadStateAdapter
@@ -32,14 +34,36 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
 
         binding.apply {
             recyclerView.setHasFixedSize(true)
+            recyclerView.itemAnimator = null
             recyclerView.adapter = adapter.withLoadStateHeaderAndFooter(
                 header = UnsplashPhotoLoadStateAdapter { adapter.retry() },
                 footer = UnsplashPhotoLoadStateAdapter { adapter.retry() }
             )
+
+            buttonRetry.setOnClickListener {
+                adapter.retry()
+            }
         }
 
         viewModel.photos.observe(viewLifecycleOwner) {
             adapter.submitData(viewLifecycleOwner.lifecycle, it)
+        }
+
+        adapter.addLoadStateListener { loadState ->
+            binding.apply {
+                progressBar.isVisible = loadState.source.refresh is LoadState.Loading
+                recyclerView.isVisible = loadState.source.refresh is LoadState.NotLoading
+                buttonRetry.isVisible = loadState.source.refresh is LoadState.Error
+                textViewError.isVisible = loadState.source.refresh is LoadState.Error
+
+                //Empty Vşew
+                if(loadState.source.refresh is LoadState.NotLoading && loadState.append.endOfPaginationReached && adapter.itemCount <= 0){
+                    recyclerView.isVisible = false
+                    textViewEmpty.isVisible = true
+                }
+                else
+                    textViewEmpty.isVisible = false
+            }
         }
 
         setHasOptionsMenu(true)
@@ -55,7 +79,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if(query != null && query.length > 3){
+                if(query != null && query.length >= 3){
                     binding.recyclerView.scrollToPosition(0)
                     viewModel.searchPhotos(query)
                     searchView.clearFocus()
