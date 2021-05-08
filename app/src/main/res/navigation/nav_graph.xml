@@ -9,5 +9,18 @@
         android:id="@+id/galleryFragment"
         android:name="com.example.mvvm_retrofit_imagesearchapp.ui.gallery.GalleryFragment"
         android:label="fragment_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        tools:layout="@layout/fragment_gallery" >
+        <action
+            android:id="@+id/action_galleryFragment_to_detailFragment"
+            app:destination="@id/detailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailFragment"
+        android:name="com.example.mvvm_retrofit_imagesearchapp.ui.detail.DetailFragment"
+        android:label="fragment_detail"
+        tools:layout="@layout/fragment_detail" >
+        <argument
+            android:name="photo"
+            app:argType="com.example.mvvm_retrofit_imagesearchapp.data.UnsplashPhoto" />
+    </fragment>
 </navigation>

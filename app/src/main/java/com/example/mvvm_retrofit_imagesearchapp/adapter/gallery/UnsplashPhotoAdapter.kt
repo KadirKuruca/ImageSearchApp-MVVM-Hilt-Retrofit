@@ -11,45 +11,64 @@ import com.example.mvvm_retrofit_imagesearchapp.R
 import com.example.mvvm_retrofit_imagesearchapp.data.UnsplashPhoto
 import com.example.mvvm_retrofit_imagesearchapp.databinding.ItemUnsplashPhotoBinding
 
-class UnsplashPhotoAdapter :
+class UnsplashPhotoAdapter(private val listener : OnItemClickLisener) :
     PagingDataAdapter<UnsplashPhoto, UnsplashPhotoAdapter.PhotoViewHolder>(PHOTO_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
-        val binding = ItemUnsplashPhotoBinding.inflate(LayoutInflater.from(parent.context),parent,false)
+        val binding =
+            ItemUnsplashPhotoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return PhotoViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
         val currentItem = getItem(position)
 
-        if(currentItem != null){
+        if (currentItem != null) {
             holder.bind(currentItem)
         }
     }
 
-    class PhotoViewHolder(private val binding: ItemUnsplashPhotoBinding) :
+    inner class PhotoViewHolder(private val binding: ItemUnsplashPhotoBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-            fun bind(photo : UnsplashPhoto){
-                binding.apply {
-                    textViewUserName.text = photo.user.username
-                    Glide.with(itemView)
-                        .load(photo.urls.regular)
-                        .centerCrop()
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .error(R.drawable.ic_error)
-                        .into(imageView)
+        init {
+            binding.root.setOnClickListener {
+                val position = bindingAdapterPosition
+                if(position != RecyclerView.NO_POSITION){
+                    val item = getItem(position)
+                    if(item != null)
+                        listener.onItemClick(item)
                 }
             }
+        }
+
+        fun bind(photo: UnsplashPhoto) {
+            binding.apply {
+                textViewUserName.text = photo.user.username
+                Glide.with(itemView)
+                    .load(photo.urls.regular)
+                    .centerCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .error(R.drawable.ic_error)
+                    .into(imageView)
+            }
+        }
     }
 
-    companion object{
-        private val PHOTO_COMPARATOR = object : DiffUtil.ItemCallback<UnsplashPhoto>(){
+    interface OnItemClickLisener{
+        fun onItemClick(photo: UnsplashPhoto)
+    }
+
+    companion object {
+        private val PHOTO_COMPARATOR = object : DiffUtil.ItemCallback<UnsplashPhoto>() {
             override fun areItemsTheSame(oldItem: UnsplashPhoto, newItem: UnsplashPhoto): Boolean {
                 return oldItem.id == newItem.id
             }
 
-            override fun areContentsTheSame( oldItem: UnsplashPhoto, newItem: UnsplashPhoto): Boolean {
+            override fun areContentsTheSame(
+                oldItem: UnsplashPhoto,
+                newItem: UnsplashPhoto
+            ): Boolean {
                 return oldItem == newItem
             }
         }
